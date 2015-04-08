@@ -1,0 +1,43 @@
+---
+title: "Creating Variables in RSudio"
+date: Reed College, Instructional Technology Services
+output: html_document
+---
+<br />          
+```{r}
+# load the mtcars data
+data(mtcars)
+```
+
+```{r}
+head(mtcars) # Look at the first 6 rows of your data 
+```
+<br />    
+
+**Create a constant** 
+```{r}
+# we can create a constant that is always '1' 
+mtcars$constant <- 1 
+head(mtcars)
+```
+<br />    
+
+**Create a variable from existing variables** 
+```{r}
+# Ratio of horse power to cylinders
+mtcars$hp_c <- mtcars$hp/mtcars$cyl
+head(mtcars)
+```
+<br />    
+
+**Create a variable based on the values of existing variables** 
+```{r}
+# dummy variable to indicate if a car gets more than 20 mpg
+# use the "ifelse" command
+# ifelse(condition, if meets condition give variable this value, otherwise give variable this value)
+mtcars$mpg20 <- ifelse(mtcars$mpg > 20, 1, 0)
+head(mtcars)
+```
+
+
+

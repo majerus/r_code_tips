@@ -1,0 +1,84 @@
+---
+title: "Histograms II"
+author: "Reed College, Instructional Technology Services"
+output: html_document
+---
+
+<br>
+<br>
+
+####Install and load ggplot
+```{r, warning=FALSE, message=FALSE}
+# install libraries 
+# This demo requires the 'ggplot' package 
+if( !is.element("ggplot2", installed.packages()[,1]) )
+  install.packages("ggplot2")
+
+# load libraries 
+library(ggplot2)
+```
+
+<br>
+<br>
+
+####Download and Load Data
+```{r}
+download.file("http://www.openintro.org/stat/data/evals.RData", destfile = "evals.RData")
+load("evals.RData")
+```
+
+<br>
+<br>
+
+####Create Histogram Plot Function
+```{r, message=FALSE}
+
+# this function will create a histogram of every variable in your data frame
+# the function takes one argument ('data') which is the name of your data frame 
+# if you want to save the scatter plots as .png files define the file path for graphs_folder below 
+# you will also need to remove the "#" from the two lines in the function that are commented out and place a "#" before print
+
+# save graphs in this folder
+graphs_folder <- '/filepath/graphs/'
+
+hist <- function(x, na.rm = TRUE, ...) {
+  nm <- names(x)
+  for (i in seq_along(nm)) {
+    print(ggplot(x,aes_string(x = nm[i])) + geom_histogram(alpha=.8, fill = "darkblue") + theme_classic()) }
+    #plots <- ggplot(x,aes_string(x = nm[i])) + geom_histogram(alpha=.8, fill = "darkblue") + theme_classic() 
+    #ggsave(plots,filename=paste(graphs_folder, "hist_",nm[i],".png",sep=""))}
+}
+
+```
+
+<br>
+<br>
+
+####Run Histogram Plot Function to Create Plots for an Entire Data Frame
+```{r, message=FALSE, warning=FALSE}
+hist(evals)
+```
+
+
+
+####Create Density Plot Function
+```{r, message=FALSE}
+
+den <- function(x, na.rm = TRUE, ...) {
+  x <- x[,sapply(x,is.numeric) | sapply(x,is.integer)]
+  nm <- names(x)
+  for (i in seq_along(nm)) {
+    print(ggplot(x,aes_string(x = nm[i])) + geom_density(alpha=.8, fill = "darkgreen") + theme_classic())}  
+}
+
+```
+
+<br>
+<br>
+
+####Run Density Plot Function to Create Kernal Density Plots for All Continuous Variables in a Data Frame 
+```{r, message=FALSE, warning=FALSE}
+den(evals)
+```
+
+

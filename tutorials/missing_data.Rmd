@@ -1,0 +1,99 @@
+---
+title: "Missing Data"
+author: "Reed College, Instructional Technology Services"
+output: html_document
+---
+
+<br>
+<br>
+
+####Create Missing Values in mtcars data 
+```{r}
+# For this example we will pretend we are missing mpg data for Merc 280, Dodge Challenger and Ferrari Dino in mtcars
+
+mtcars$mpg <- ifelse(rownames(mtcars) == 'Merc 280'|
+                     rownames(mtcars) == 'Dodge Challenger'|
+                     rownames(mtcars) == 'Ferrari Dino', 
+                     -99, mtcars$mpg)
+```                       
+
+<br>
+<br>
+
+####Change Missing Value Code to NA
+```{r}
+mtcars[mtcars==-99] <- NA
+```                       
+
+<br>
+<br>
+
+####Identify Missing Values in Data Frame
+```{r}
+# list total number of missing values by variable
+colSums(is.na(mtcars))
+```
+
+```{r}
+# list names of cars with missing mpg
+rownames(mtcars)[is.na(mtcars$mpg)]
+```
+
+<br>
+<br>
+
+####Calculate Mean MPG
+```{r}
+mean(mtcars$mpg)   # missing values mess up even simple calculations
+```
+
+```{r}
+mean(mtcars$mpg, na.rm = TRUE)   # we can get around this by telling R to ignore missing values 
+```
+
+<br>
+<br>
+
+####Mean Imputation 
+```{r}
+# Mean Imputation
+mtcars.imputed <- mtcars
+mtcars.imputed$mpg <- ifelse(is.na(mtcars$mpg), mean(mtcars$mpg, na.rm = TRUE), mtcars$mpg)
+
+colSums(is.na(mtcars.imputed)) # no more missing data 
+summary(mtcars.imputed$mpg)
+```
+
+<br>
+<br>
+
+####Mean Imputation over every Column 
+```{r}
+# Create mean imputation function
+mean.imputation <- function(df,...) {
+apply(df, 2, function(x) {x <- ifelse(is.na(x), mean(x, na.rm = TRUE), x)})
+    }
+
+mtcars.imputed <- mean.imputation(mtcars) 
+
+colSums(is.na(mtcars.imputed)) # no more missing data 
+```
+
+<br>
+<br>
+
+####Percentile Imputation 
+```{r}
+#  Imputation
+mtcars.imputed <- mtcars
+mtcars.imputed$mpg[is.na(mtcars.imputed$mpg)] <- quantile(mtcars.imputed$mpg, .95, na.rm = TRUE) # impute missing with 95th percentile
+
+colSums(is.na(mtcars.imputed)) # no more missing data 
+summary(mtcars.imputed$mpg)
+
+```
+
+
+
+
+

@@ -1,0 +1,15 @@
+---
+title: "Creating Histograms in RSudio"
+date: Reed College, Instructional Technology Services
+output: html_document
+---
+<br />          
+```{r}
+# load the mtcars data
+data(mtcars)
+```
+
+Create a histogram of the mpg variable 
+```{r}
+hist(mtcars$mpg) 
+```

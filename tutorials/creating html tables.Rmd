@@ -1,0 +1,62 @@
+---
+title: "Creating HTML Tables"
+author: "Rich Majerus"
+date: "November 11, 2014"
+output: html_document
+---
+
+<br />
+
+#####HTML Tables with xtable Package
+```{r, results='asis'}
+library(xtable)
+library(plyr)
+
+data(mtcars)
+
+# create a data frame that contains mean mpg values by the number of cylinders
+summary_data <- ddply(mtcars, .(cyl), summarise, mean_mpg = mean(mpg))
+
+# rename columns in data frame 
+colnames(summary_data) <- c('Cylinders', 'Mean MPG')
+
+# Create in print xtable in html
+print(xtable(summary_data, 
+             caption="Mean MPG by Cylinders"), 
+              "html", include.rownames=FALSE, caption.placement='top',
+               html.table.attributes='align="left"')
+
+```
+<br />
+
+
+#####HTML Tables with knitr Package
+
+```{r, results='asis'}
+
+library(knitr)
+
+kable(head(mtcars), digits=2)
+
+```
+
+
+<br />
+
+
+#####HTML Tables with googleVis Package
+```{r, results='asis', warning=FALSE}
+suppressMessages(library(googleVis))
+
+cars <- cbind(car = rownames(mtcars), mtcars)
+
+table <- gvisTable(cars, 
+              #formats=list(Population="#,###")  
+              options=list(page='enable'))
+
+print(table)
+```
+
+
+
+

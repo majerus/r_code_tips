@@ -1,0 +1,35 @@
+---
+title: "Reordering Bars by Frequency in ggplot2"
+output: html_document
+---
+
+<br/>
+
+```{r, warning=FALSE}
+
+suppressMessages(library(ggthemes))
+suppressMessages(library(ggplot2))
+suppressMessages(library(dplyr))
+
+cars <- mtcars
+
+data <- 
+  cars %>%
+  group_by(carb) %>%
+  summarise(mpg=mean(mpg))
+
+ggplot(data=data, aes(x=carb, y=mpg)) +
+  geom_bar(stat="identity")
+
+data$carb <- factor(data$carb, levels = data$carb[order(-data$mpg)])
+
+ggplot(data=data, aes(x=carb, y=mpg)) +
+  geom_bar(stat="identity")
+
+ggplot(data=data, aes(x=carb, y=mpg, fill='Dark Blue')) +
+  geom_bar(stat="identity") +
+  theme_tufte()
+
+
+```
+

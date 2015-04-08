@@ -1,0 +1,172 @@
+---
+title: "Line Graphs"
+author: "Reed College, Instructional Technology Services"
+output: html_document
+---
+
+<br>
+<br>
+
+####Download and Load Data
+```{r}
+download.file("http://www.openintro.org/stat/data/ames.csv", destfile = "ames.csv")
+data <- read.csv("/Users/majerus/Downloads/ames.csv")   # update to file path on your computer 
+```
+
+<br>
+<br>
+
+####Calculate Mean Sale Price by Year
+```{r}
+# This calculation requires the 'plyr' package
+if( !is.element("plyr", installed.packages()[,1]) )
+  install.packages("plyr")
+
+library(plyr)
+
+mean <- ddply(data, .(Yr.Sold), summarize,     
+               mean_price = mean(SalePrice))
+```
+
+<br>
+<br>
+
+
+
+####Create Line Grap  using Base R Commands
+```{r}
+plot(mean$Yr.Sold, mean$mean_price, type = "o")
+```
+
+<br>
+<br>
+
+####Add Additional Elements to Base Line Graph
+```{r}
+
+plot(mean$Yr.Sold, mean$mean_price, type = "o",
+     xlab = "Year", ylab = "Mean Sale Price",  main = "Line Graph of Mean Home Sale Price in Ames, IA", pch = 16, 
+     col = "dark blue", lwd = 3, cex = 2) 
+
+
+```
+
+<br>
+<br>
+
+
+####Using ggplot2 to Make a Line Graph
+```{r, message=FALSE}
+# This demo requires the 'ggplot' package
+if( !is.element("ggplot2", installed.packages()[,1]) )
+  install.packages("ggplot2")
+
+suppressPackageStartupMessages(library(ggplot2))
+
+ggplot(mean, aes(Yr.Sold, mean_price)) + 
+  geom_line()
+```
+
+
+<br>
+<br>
+
+####Apply Theme to  Line Graph
+```{r, message=FALSE}
+
+if( !is.element("ggthemes", installed.packages()[,1]) )
+  install.packages("ggthemes")
+
+if( !is.element("scales", installed.packages()[,1]) )
+  install.packages("scales")
+
+suppressPackageStartupMessages(library(ggthemes))
+suppressPackageStartupMessages(library(scales))
+
+ggplot(mean, aes(Yr.Sold, mean_price)) + 
+  geom_line() +
+  theme_tufte()
+```
+
+<br>
+<br>
+
+####Add Additional Elements to Line Graph 
+```{r, message=FALSE}
+
+ggplot(mean, aes(Yr.Sold, mean_price)) + 
+  geom_line(color="dark blue", size=2) +
+  scale_y_continuous("Mean Sale Price", labels = dollar) +
+  scale_x_continuous("Year") +
+  ggtitle("Mean Home Sale Price in Ames, IA") +
+  theme_tufte() +
+  theme(plot.title = element_text(size = 16, face="bold"))
+
+```
+
+
+####Make Your Line Graph Interactive with googleVis 
+```{r, warning=FALSE}
+## This demo requires the 'googleVis' package 
+if( !is.element("googleVis", installed.packages()[,1]) )
+  install.packages("googleVis")
+
+suppressPackageStartupMessages(library(googleVis))
+suppressPackageStartupMessages(library(scales))
+
+# add names to new data frame as factor 
+mean$pop.html.tooltip=dollar_format()(mean$mean_price)
+
+# create interactive scatter plot using googleVis
+line <- gvisScatterChart(mean,                                                           
+                         options=list(tooltip="{isHtml:'True'}",
+                         legend="none", lineWidth=5, pointSize=3,                                                     
+                         vAxis="{title:'Mean Sale Price'}",                         
+                         hAxis="{title:'Year'}",                     
+                         width=750, height=500))                            
+
+```
+
+<br>
+<br>
+
+
+```{r, results = 'asis'}
+# plot interactive scatter (use 'plot(Hist)' to view in RStudio)
+print(line, 'chart') 
+
+```
+
+<br>
+<br>
+
+
+####Add an Edit Button to Your Line Graph 
+```{r, warning=FALSE}
+## This demo requires the 'googleVis' package 
+if( !is.element("googleVis", installed.packages()[,1]) )
+  install.packages("googleVis")
+
+suppressPackageStartupMessages(library(googleVis))
+
+# create interactive histogram plot using googleVis
+line2 <- gvisScatterChart(mean,                                                           
+                          options=list(tooltip="{isHtml:'True'}",
+                          legend="none", lineWidth=5, pointSize=3,                                                     
+                          vAxis="{title:'Mean Sale Price'}",                         
+                          hAxis="{title:'Year'}",                     
+                          width=750, height=500, 
+                          gvis.editor="Edit Graph"))                  
+                                        
+```
+
+<br>
+<br>
+
+```{r, results = 'asis'}
+# plot interactive scatter (use 'plot(Hist)' to view in RStudio)
+print(line2, 'chart') 
+
+```
+
+

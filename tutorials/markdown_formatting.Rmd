@@ -1,0 +1,66 @@
+---
+title: "Markdown Formatting"
+date: Reed College, Instructional Technology Services
+output: html_document
+---
+<br> <br> 
+
+#### **Bold Text**
+```{r}
+# **text** or __text__ makes your text between the ** or __ bold 
+```
+For example, __this is bold text that I made using two underscores__  
+<br> <br> 
+
+#### *Italic Text*
+```{r}
+# *text* or _text_ makes your text between the * or _ italic 
+```
+For example, _this is italic text that I made using one underscore_  
+<br> <br> 
+
+#### Line breaks
+```{r}
+# You can include a line break by ending a line with two (or more) spaces and a return.
+# Alternatively, you can use html <br> 
+# If we put atwo (or more) spaces and a return after the comma in the preceeding example we get the following: 
+```
+For example,  
+_this is italic text that I made using one underscore_
+<br> <br> 
+
+
+#### Inline R Code
+```{r}
+# You can insert R code and calculations directly into your text 
+# For example, the following line outside of a code chunk is displayed below. 
+# The average mpg for cars in the data set is `r round(mean(mtcars$mpg), 2)` miles per gallon.  
+```
+
+The average mpg for cars in the data set is `r round(mean(mtcars$mpg), 2)` miles per gallon.  
+<br> <br> 
+
+
+#### Page Breaks 
+In html documents you will not need page breaks.  W
+```{r}
+# When you are producing html documents, you can use the latex command "\pagebreak" to insert a page break
+```
+<br> <br> 
+
+
+#### Headings
+```{r}
+# You can create headings with "#"
+# The following text starts with #Heading and ends with ######Heading
+
+```
+  
+# Heading
+## Heading
+### Heading
+#### Heading
+##### Heading
+###### Heading
+<br> <br> 
+

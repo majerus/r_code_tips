@@ -1,0 +1,90 @@
+---
+title: "Reed College Matriculants"
+author: "Rich Majerus"
+date: "March 11, 2015"
+output: html_document
+---
+```{r, echo=FALSE, warning=FALSE}
+# install packages 
+pkg <- c("rvest", "dplyr",  "reshape2", "googleVis",  "magrittr", "ggplot2", "ggthemes", "RColorBrewer")
+
+new.pkg <- pkg[!(pkg %in% installed.packages())]
+
+if (length(new.pkg)) {
+  install.packages(new.pkg)
+}
+
+# load packages 
+suppressMessages(library(rvest))
+suppressMessages(library(dplyr))
+suppressMessages(library(reshape2))
+suppressMessages(library(googleVis))
+suppressMessages(library(ggplot2))
+suppressMessages(library(ggthemes))
+suppressMessages(library(RColorBrewer))
+
+# download html file
+webpage <- html("http://www.reed.edu/ir/geographic_states.html")
+
+# the data we want is in the first table on this page
+# the html_table() command coerces the data into a data frame
+webpage %>%
+  html_nodes("table") %>%
+  .[[1]] %>%
+  html_table()
+
+# repeat above code but store results in a data frame
+data <- 
+  webpage %>%
+  html_nodes("table") %>%
+  .[[1]] %>%
+  html_table()
+
+# we can now work with this data from the web as a data frame in R
+# remove total row from data 
+data <- 
+  data %>% 
+  filter(State!='Total')
+
+# reshape data for plotting 
+data_long <- melt(data, id='State')
+
+# rename columns in long data frame 
+colnames(data_long) <- c('State', 'Year', 'Matriculants')
+
+# select states that we want to graph
+keep <- c('Iowa', 'Minnesota', 'South Dakota',  'Wisconsin')
+```
+
+```{r}
+# plot selected states
+ggplot(
+  subset(data_long, data_long$State %in% keep),
+  aes(Year, Matriculants, group = State, colour = State)) + 
+  geom_line(size=2) 
+```
+
+```{r}
+# plot selected states (facets)
+ggplot(
+  subset(data_long, data_long$State %in% keep),
+  aes(Year, Matriculants, group = State, colour = State)) + 
+  geom_line(size=2) +
+  facet_wrap( ~  State, 
+              ncol=2) 
+```
+              
+```{r}
+# plot selected states (facets) with title, theme and different colors
+ggplot(
+  subset(data_long, data_long$State %in% keep),
+  aes(Year, Matriculants, group = State, colour = State)) + 
+  geom_line(size=2) +
+  facet_wrap( ~  State, 
+              ncol=nrow(subset(data_long, data_long$State %in% keep))/16) +
+  ggtitle("Reed College Matriculants by State") +
+  theme_tufte() +
+  theme(plot.title = element_text(size = 16, face="bold")) + 
+  scale_colour_brewer("Colors in Set1", palette="Set1")
+```
+

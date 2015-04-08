@@ -1,0 +1,153 @@
+---
+title: "Graphing and Facets"
+author: "Reed College, Instructional Technology Services"
+output: html_document
+---
+
+<br />
+
+#####Load Data 
+```{r}
+
+download.file("http://www.openintro.org/stat/data/ames.csv", destfile = "ames.csv")
+data <- read.csv("/Users/majerus/Downloads/ames.csv")   # update to file path on your computer 
+
+```
+
+<br />
+
+#####Load Packages
+
+```{r}
+
+library(plyr)
+library(ggplot2)
+library(ggthemes)
+library(scales)
+library(reshape2)
+```
+
+<br />
+
+#####Calculate Mean Sale Price by Year 
+
+```{r}
+
+mean <- ddply(data, .(Yr.Sold), summarize,     
+               mean_price = mean(SalePrice))
+
+```
+
+<br />
+
+#####Calculate Mean Sale Price by Year and Sale Condition 
+
+```{r}
+
+# show count of sale conditions by year of sale
+table(data$Yr.Sold, data$Sale.Condition)
+
+# create data frame with the mean sale price for each combintation of year and condition
+mean.facet<- ddply(data, .(Yr.Sold, Sale.Condition), summarize,     
+               mean_price = mean(SalePrice))
+
+# show first 6 rows of new data frame
+head(mean.facet)
+
+# show table of mean sale price by year and condition
+dcast(mean.facet, Yr.Sold ~ Sale.Condition)
+
+```
+
+<br />
+
+#####Plot Mean Sale Price by Year 
+
+```{r}
+
+ggplot(mean, aes(Yr.Sold, mean_price)) + 
+  geom_line(color="dark blue", size=2) +
+  scale_y_continuous("Mean Sale Price", labels = dollar) +
+  scale_x_continuous("Year") +
+  ggtitle("Mean Home Sale Price in Ames, IA") +
+  theme_tufte() +
+  theme(plot.title = element_text(size = 16, face="bold"))
+
+```
+
+<br />
+
+#####Plot Mean Sale Price by Year and Home Type
+
+```{r}
+
+ggplot(mean.facet, aes(Yr.Sold, mean_price, group = Sale.Condition, colour = Sale.Condition)) + 
+  geom_line(size=2) +
+  scale_y_continuous("Mean Sale Price", labels = dollar) +
+  scale_x_continuous("Year") +
+  ggtitle("Mean Home Sale Price in Ames, IA") +
+  theme_tufte() +
+  theme(plot.title = element_text(size = 16, face="bold"))
+
+```
+
+
+<br />
+
+#####Plot Mean Sale Price by Year and Home Type (Facets)
+
+```{r}
+
+ggplot(mean.facet, aes(Yr.Sold, mean_price, group = Sale.Condition, colour = Sale.Condition)) + 
+  geom_line(size=2) +
+  facet_wrap( ~  Sale.Condition, ncol=1) +
+  scale_y_continuous("Mean Sale Price", labels = dollar) +
+  scale_x_continuous("Year") +
+  ggtitle("Mean Home Sale Price in Ames, IA") +
+  theme_tufte() +
+  theme(plot.title = element_text(size = 16, face="bold"))
+
+```
+
+
+
+
+```{r}
+
+ggplot(mean.facet, aes(Yr.Sold, mean_price, group = Sale.Condition, colour = Sale.Condition)) + 
+  geom_line(size=2) +
+  facet_wrap( ~  Sale.Condition, ncol=6) +
+  scale_y_continuous("Mean Sale Price", labels = dollar) +
+  scale_x_continuous("Year") +
+  ggtitle("Mean Home Sale Price in Ames, IA") +
+  theme_tufte() +
+  theme(plot.title = element_text(size = 16, face="bold"),
+        axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+
+
+
+
+```{r}
+
+ggplot(mean.facet, aes(Yr.Sold, mean_price, group = Sale.Condition, colour = Sale.Condition)) + 
+  geom_line(size=2) +
+  facet_wrap( ~  Sale.Condition, ncol=2) +
+  scale_y_continuous("Mean Sale Price", labels = dollar) +
+  scale_x_continuous("Year") +
+  ggtitle("Mean Home Sale Price in Ames, IA") +
+  theme_tufte() +
+  theme(plot.title = element_text(size = 16, face="bold"))
+
+```
+
+
+
+
+
+
+
+
+

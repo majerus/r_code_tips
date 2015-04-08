@@ -1,0 +1,36 @@
+---
+title: "T-Tests in R"
+author: "Reed College, Instructional Technology Services"
+output: pdf_document
+---
+
+**Load data**
+```{r}
+data(mtcars)
+```
+
+**One sample t-test**
+```{r}
+t.test(mtcars$mpg, mu=50) # Ho: mu=3
+```
+\newpage
+
+**Independent two sample t-test by groups**
+```{r}
+t.test(mtcars$mpg ~ mtcars$am) 
+```
+\newpage
+
+**Independent 2-group t-test**
+```{r}
+mpg1 <- sample(mtcars$mpg, 10, replace=F)
+mpg2 <- sample(mtcars$mpg, 10, replace=F)
+
+t.test(mpg1, mpg2) 
+
+# possible options: 
+  # paired = TRUE
+  # var.equal = TRUE (pooled variable estimate)
+  # alternative="less" or alternative="greater" (one tail tests)
+```
+

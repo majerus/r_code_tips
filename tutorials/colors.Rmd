@@ -1,0 +1,122 @@
+---
+title: "Package RColorBrewer with ggplot2"
+author: "Reed College, Instructional Technology Services"
+output: html_document
+---
+
+<br />
+
+#####Load Data 
+```{r}
+
+download.file("http://www.openintro.org/stat/data/ames.csv", destfile = "ames.csv")
+data <- read.csv("/Users/majerus/Downloads/ames.csv")   # update to file path on your computer 
+
+```
+
+<br />
+
+#####Load Packages
+
+```{r}
+
+library(plyr)
+library(ggplot2)
+library(ggthemes)
+library(scales)
+library(reshape2)
+library(RColorBrewer)
+```
+
+<br />
+
+
+#####Calculate Mean Sale Price by Year and Building Type 
+
+```{r}
+
+# show count of building types by year of sale
+table(data$Yr.Sold, data$Bldg.Type)
+
+# create data frame with the mean sale price for each combintation of year and type
+means <- ddply(data, .(Yr.Sold, Bldg.Type), summarize,     
+               mean_price = mean(SalePrice))
+
+# show first 6 rows of new data frame
+head(means)
+
+# show table of mean sale price by year and type
+dcast(means, Yr.Sold ~ Bldg.Type)
+
+```
+
+<br />
+
+#####Plot Mean Sale Price by Year and Building Type (manually assign colors)
+
+```{r}
+
+# define colors by name
+
+p <-
+  ggplot(means, aes(Yr.Sold, mean_price, group = Bldg.Type, colour = Bldg.Type)) + 
+  geom_line(size=2) +
+  scale_y_continuous("Mean Sale Price", labels = dollar) +
+  scale_x_continuous("Year") +
+  ggtitle("Mean Home Sale Price in Ames, IA") +
+  theme_tufte() +
+  theme(plot.title = element_text(size = 16, face="bold")) 
+
+p +  scale_colour_manual(values = c("red","blue", "dark green", "grey", "black"))
+    
+
+```
+
+
+```{r}
+
+# define colors by hex code 
+# see http://www.w3schools.com/tags/ref_colorpicker.asp & http://colorbrewer2.org
+
+p +  scale_colour_manual(values = c("#0000FF","#197519", "#CC2900", "#4700B2", "#E6E600"))
+    
+
+```
+
+
+
+#####Plot Mean Sale Price by Year and Building Type (use  assign colors RColorBrewer)
+
+```{r}
+# use display.brewer.all() to see all options
+
+p + scale_colour_brewer("Colors in Set1", palette="Set1")
+    
+
+```
+
+```{r}
+
+p + scale_colour_brewer("Colors in Paired", palette="Paired")
+  
+```
+
+```{r}
+
+p +  scale_colour_brewer("Colors in Spectral", palette="Spectral")
+    
+```
+
+
+```{r}
+
+p + scale_colour_brewer("Colors in Dark2", palette="Dark2")
+    
+
+```
+
+
+
+
+
+

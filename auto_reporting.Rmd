@@ -1,0 +1,89 @@
+---
+title: "Example Car Sales Report"
+author: "Rich Majerus"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+# set global chunk options
+# opts_chunk$set(cache=FALSE)
+library(ggplot2)
+library(dplyr)
+library(ggmap)
+library(knitr)
+library(markdown)
+library(rmarkdown)
+library(xtable)
+```
+
+```{r, echo=FALSE}
+#car <- 'Mazda RX4' # for testing 
+cars <- mtcars[rownames(mtcars)==car,]
+
+# create daily data 
+x <- sample(1:10, 1)
+
+cars <- do.call("rbind", replicate(x, cars, simplify = FALSE))
+
+cars$lat <- sapply(rownames(cars), function(x) round(runif(1, 30, 46), 3))
+cars$lon <- sapply(rownames(cars), function(x) round(runif(1, -115, -80),3))
+
+```
+
+Today is `r Sys.Date()`.  
+
+Today we sold `r nrow(cars)` `r car`. 
+
+<br><br>
+
+Today we sold cars to people in the following locations: 
+
+<br><br>
+
+```{r, echo=FALSE,  message = FALSE}
+# map of cars sold
+#map <- # now included in r source file so it is only run once 
+#get_map(location="United States",
+#source= 'google', maptype = 'terrain', color='bw', zoom=4) 
+
+ggmap(map) + 
+geom_point(aes(x = lon, y = lat), data = cars, alpha = 1, color="darkred", size = 3) +
+  scale_size_area(20) 
+
+
+```
+
+<br><br>
+
+Here is a data table of the cars we sold. 
+
+<br><br>
+
+```{r xtable, echo=FALSE, results='asis', message=FALSE}
+# data table of cars sold 
+
+table <- xtable(cars[,c(1:2, 12:13)])
+print(table, type="latex", comment = FALSE)
+
+
+```
+
+<br><br>
+
+\newpage
+
+Here is a plot of mpg vs. weight for the sold cars: 
+
+<br><br>
+
+```{r, echo=FALSE}
+
+# plot 
+
+ggplot(cars, aes(mpg, wt)) + 
+ geom_point(position = position_jitter(w = 0.1, h = 0.1)) 
+
+
+```
+
+

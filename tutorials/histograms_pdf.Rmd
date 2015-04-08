@@ -1,0 +1,85 @@
+---
+title: "Histograms in R"
+author: "Reed College, Instructional Technology Services"
+output: pdf_document
+---
+
+**Create Histogram  using Base R Commands**
+```{r}
+cars <- mtcars
+hist(cars$mpg)
+```
+\newpage
+
+**Add Additional Elements to Base Histogram**
+```{r}
+hist(cars$mpg,
+     xlab = "MPG", ylab = "Frequency",  main = "Histogram of MPG", # Add labels
+     breaks=12,  # set number of bins
+     col = "dark blue") # change color 
+
+
+```
+\newpage
+
+**Create Kernal Density using Base R Commands**
+```{r}
+plot(density(cars$mpg))
+
+```
+\newpage
+
+**Add Additional Elements to Base Density Plot**
+```{r}
+plot(density(cars$mpg),
+     xlab = "MPG", ylab = "Density",  main = "Density Plot of MPG", # Add labels
+     col = "dark blue", lwd = 4) # change color and width of line
+
+```
+\newpage
+
+**Using ggplot2 to Make a Histogram**
+```{r, message=FALSE}
+# This demo requires the 'ggplot' package 
+if( !is.element("ggplot2", installed.packages()[,1]) )
+  install.packages("ggplot2")
+
+suppressPackageStartupMessages(library(ggplot2))
+
+## Base histogram plot in ggplot 
+ggplot(cars, aes(x=mpg)) + geom_histogram()
+```
+\newpage
+
+
+**Apply Theme to  Histogram Plot**
+```{r, message=FALSE}
+ggplot(cars, aes(x=mpg)) + 
+  geom_histogram() +
+  theme_classic()
+```
+\newpage
+
+**Add Additional Elements to Histogram**
+```{r, message=FALSE}
+
+ggplot(cars, aes(x=mpg)) + 
+  geom_histogram(color="dark blue", size=1, fill="light blue", binwidth=15) +  # change color and adjust bindwidth
+  ggtitle("Histogram of MPG") + # add a title to the plot 
+  theme_classic()
+
+```
+\newpage
+
+**Using ggplot to Make a Density Plot**
+```{r}
+
+ggplot(cars, aes(x=mpg)) + 
+  geom_density(color="dark blue", size=1, fill="light blue") + # change to geom_density for density plot 
+  ggtitle("Kernal Density of MPG") + 
+  theme_classic()
+
+```
+\newpage
+
+

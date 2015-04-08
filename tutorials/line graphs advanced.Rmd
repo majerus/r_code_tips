@@ -1,0 +1,68 @@
+---
+title: "Line Graphs"
+author: "Reed College, Instructional Technology Services"
+output: html_document
+---
+
+<br>
+<br>
+
+####Download and Load Data
+```{r}
+download.file("http://www.openintro.org/stat/data/ames.csv", destfile = "ames.csv")
+data <- read.csv("/Users/majerus/Downloads/ames.csv")   # update to file path on your computer 
+```
+
+<br>
+<br>
+
+####Calculate the Mean of each Continuous Variable by Year
+```{r}
+# This calculation requires the 'plyr' package
+if( !is.element("plyr", installed.packages()[,1]) )
+  install.packages("plyr")
+
+library(plyr)
+
+# list class of each variable
+sapply(data, class)
+
+# keep only continuous variables
+data_continuous <- data[,sapply(data,is.numeric) | sapply(data,is.integer)]
+
+# calculate mean for every column in the data frame by year 
+means <- ddply(data_continuous, .(Yr.Sold), numcolwise(mean), na.rm=T)
+
+
+```
+
+<br>
+<br>
+
+####Create Line Graph Plot Function
+```{r, message=FALSE}
+
+# This demo requires the 'ggplot' package 
+if( !is.element("ggplot2", installed.packages()[,1]) )
+  install.packages("ggplot2")
+
+suppressPackageStartupMessages(library(ggplot2))
+
+# this function will create a line graph of every variable in your data frame
+# the function takes two arguments 'x' (the name of your data frame) and 'time' (the name variable to be plotted on the x-axis)
+
+line <- function(x, time, na.rm = TRUE, ...) {
+  nm <- names(x)
+  for (i in seq_along(nm)) {
+    print(ggplot(x, aes_string(x = time, y = nm[i])) + geom_line(size=2, color = "darkblue") + theme_classic()) }
+}
+
+```
+
+<br>
+<br>
+
+####Run Line Graph Function to Create Plots for an Entire Data Frame
+```{r}
+line(x=means, time="means$Yr.Sold")
+```

@@ -1,0 +1,189 @@
+---
+title: "Scatter Plots"
+author: "Reed College, Instructional Technology Services"
+output: html_document
+---
+
+<br>
+<br>
+
+####Create Data Frame of Majors and FTE by Department at Reed College
+```{r}
+
+Departments = c('Art' , 'Music', 'Theatre', 'Anthropology', 'Economics',
+                'History', 'Political Science', 'Sociology', 'Chinese',  'Classics',
+                'English', 'French', 'German', 'Russian', 'Spanish',
+                'Biology', 'Chemistry', 'Mathematics', 'Physics', 'Linguistics',
+                'Philosophy', 'Psychology', 'Religion')
+
+Majors = c(58, 21, 16, 52, 56,
+          57, 68, 28, 6, 20, 
+          150, 5, 2, 7, 3, 
+          153.5, 74, 72.5, 125, 45,
+          75, 98, 25)
+
+FTE = c(7.8, 4, 6.25, 5, 5.6, 
+        8.7, 5.5, 3, 3, 4, 
+        12, 5, 3, 3, 5, 
+        9, 6.8, 8, 6, 4, 
+        5.7, 7.7, 4)
+
+data <- data.frame(Departments, Majors, FTE)
+
+# Data does not include 94 interdisciplinary majors and 40 undecided majors.  
+# Majors like bio/chem are split between the two departments 
+# General Lit majors are included with English 
+# Dance majors and faculty are included with Theatre
+# Major Data: http://www.reed.edu/ir/ir_internal_web/intendedmajors.html and FTE Data: http://www.reed.edu/ir/facfte.html
+
+```
+
+<br>
+<br>
+
+####Create Scatter Plot using Base R Commands
+```{r}
+plot(data$Majors, data$FTE)
+```
+
+<br>
+<br>
+
+####Add Additional Elements to Base Scatter Plot
+```{r}
+plot(data$Majors, data$FTE, 
+     xlab = "Majors", ylab = "FTE",  main = "Reed College Majors and FTE by Deparment ", pch = 16, # Add labels
+     xlim = c(0, 160), ylim = c(0, 15),  # set limits on x-axis and y-axis
+     col = "dark blue", cex = 2) # change color and size of points
+
+
+```
+
+<br>
+<br>
+
+
+####Add A Fitted Line
+```{r}
+plot(data$Majors, data$FTE, 
+     xlab = "Majors", ylab = "FTE",  main = "Reed College Majors and FTE by Deparment", pch = 16, # Add labels
+     xlim = c(0, 160), ylim = c(0, 15),  # set limits on x-axis and y-axis
+     col = "dark blue", cex = 2) # change color and size of points
+
+abline(lm(data$FTE~data$Majors), col="dark red", lwd = 2)  # add fitted regression line (y~x) 
+
+```
+
+
+<br>
+<br>
+
+
+####Using ggplot2 to Make a Scatter Plot
+```{r}
+# This demo requires the 'ggplot' package 
+if( !is.element("ggplot2", installed.packages()[,1]) )
+  install.packages("ggplot2")
+
+suppressPackageStartupMessages(library(ggplot2))
+
+## Base scatter plot in ggplot 
+ggplot(data, aes(x=Majors, y=FTE)) + 
+  geom_point(shape=1)
+
+```
+
+
+<br>
+<br>
+
+####Apply Theme to  Scatter Plot
+```{r}
+ggplot(data, aes(x=Majors, y=FTE)) + 
+  geom_point(shape=1)+
+  theme_bw()
+
+
+
+```
+
+<br>
+<br>
+
+####Add Additional Elements to Base Scatter Plot
+```{r}
+ggplot(data, aes(x=Majors, y=FTE)) +  
+  geom_point(color="dark blue", size=3) +   # change the color and size of points 
+  geom_smooth(method=lm, se=FALSE, color="dark red") + # add a fitted line 
+  scale_y_continuous(limits = c(0, 12)) + # apply limits to the y-axis
+  ggtitle("Reed College Majors and FTE by Deparment") + # add a title to the plot 
+  theme_bw()
+
+
+```
+
+<br>
+<br>
+
+####Make Your Scatter Plot Interactive with googleVis
+ 
+```{r, warning=FALSE}
+## This demo requires the 'googleVis' package 
+if( !is.element("googleVis", installed.packages()[,1]) )
+  install.packages("googleVis")
+
+suppressPackageStartupMessages(library(googleVis))
+
+# make a new data frame with only two columns to scatter plot 
+keep <- c('Majors', 'FTE')
+data2 <- data[keep]
+
+# add names to new data frame as factor 
+data2$pop.html.tooltip=data$Departments
+
+# create interactive scatter plot using googleVis
+Scatter1 <- gvisScatterChart(data2,                                                           
+                            options=list(tooltip="{isHtml:'True'}",              # Define tooltip                            
+                              legend="none", lineWidth=0, pointSize=5,                                                     
+                              vAxis="{title:'Faculty (Total FTE)'}",             # y-axis label                
+                              hAxis="{title:'Majors (delared and intended)'}",   # x-axis label                     
+                              width=750, height=500))                            # plot dimensions                                              
+```
+
+```{r, results = 'asis'}
+# plot interactive scatter (use 'plot(Scatter1)' to view in RStudio)
+print(Scatter1, 'chart') 
+
+```
+
+
+<br>
+<br>
+
+
+####Add Additional Elements to Interactive Scatter Plot
+```{r, warning=FALSE}
+
+# create interactive scatter plot using googleVis
+Scatter2 <- gvisScatterChart(data2,                                                           
+                            options=list(
+                              explorer="{actions: ['dragToZoom', 
+                                          'rightClickToReset'],
+                                           maxZoomIn:0.05}",
+                              #chartArea="{width:'85%',height:'80%'}",
+                              tooltip="{isHtml:'True'}",              
+                              crosshair="{trigger:'both'}",                         
+                              legend="none", lineWidth=0, pointSize=5,                                                     
+                              vAxis="{title:'Faculty (Total FTE)'}",                        
+                              hAxis="{title:'Majors (delared and intended)'}",                     
+                              width=750, height=500))                                                                        
+```
+
+
+```{r, results = 'asis'}
+print(Scatter2, 'chart') 
+
+```
+
+Left-click and drag to select an area of the chart to zoom-in on. 
+  

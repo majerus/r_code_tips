@@ -1,0 +1,106 @@
+---
+title: "dplyr Introduction"
+author: "Reed College, Instructional Technology Services"
+output: html_document
+---
+
+<br/>
+
+##### Load Packages and Data
+
+```{r, warning=FALSE}
+# load dplyr package 
+suppressMessages(library(dplyr))
+
+# create example dataframe
+cars <- cbind(car = rownames(mtcars), mtcars)
+rownames(cars) <- NULL
+
+```
+
+<br/>
+
+##### dplyr verbs 
+
+```{r}
+# filter - subset rows of a data frame / filter(df, how to subset)
+filter(cars, mpg > 25)
+filter(cars,  mpg > 25 & hp > 75)
+
+# slice - subset rows of a data frame by position / slice(df, rows to keep)
+slice(cars, 1:5)
+slice(cars, c(1:3, 11:13))
+
+# arrange - order rows of a data frame / slice(df, column names to order by)
+head(arrange(cars, mpg))
+head(arrange(cars, desc(mpg)))
+head(arrange(cars, desc(cyl), desc(mpg)))
+
+# select - subset columns of a data frame / select(df, names of columns to keep)
+head(select(cars, car, mpg))
+head(select(cars, car:hp))
+head(select(cars, -(car:hp)))
+
+# select and other dplyr verbs work with starts_with(), ends_with(), matches() and contains()
+head(select(cars, starts_with('c')))
+
+# select is often used with distinct - returns table of all unique values 
+distinct(select(cars, vs, cyl))
+
+# rename - rename columns of a data frame / rename(df, new name = old name)
+head(rename(cars, automobile = car))
+
+# mutate - create new columns / mutate(df, new column name = formula for new column)
+head(mutate(cars, hp_to_wt = hp/wt))
+
+```
+
+
+<br/>
+
+##### Chaining Syntax
+
+```{r}
+# count number of cars with each number of cylinders and put in descending order 
+# n() - counts number of rows in a group
+cars %>%
+  group_by(cyl) %>%
+  summarise(cyl_count=n()) %>%
+  arrange(desc(cyl_count))
+
+# calculate mean mpg by number of cylinders 
+cars %>%
+  group_by(cyl) %>%
+  summarise(mean_mpg = mean(mpg, na.rm = TRUE))
+
+# calculate mean mpg and wt by number of cylinders 
+# sumarise_each - applies the same function to multiple columns 
+cars %>%
+  group_by(cyl) %>%
+  summarise_each(funs(mean(., na.rm = TRUE)), mpg, wt)
+    
+# calculate mean, min, max and sd of mpg and wt rates by number of cyl 
+cars %>%
+  group_by(cyl) %>%
+  summarise_each(funs(mean(., na.rm = TRUE), 
+                      min(., na.rm = TRUE), 
+                      max(., na.rm = TRUE), 
+                      sd(., na.rm = TRUE)), 
+                      mpg, wt)
+
+```
+
+<br/>
+
+##### Sampling
+
+```{r}
+
+# sample 5 rows 
+cars %>% sample_n(5)
+
+# sample 10% of rows  
+cars %>% 
+  sample_frac(.1, replace = FALSE)
+
+```

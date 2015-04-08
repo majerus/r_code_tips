@@ -1,0 +1,73 @@
+---
+title: "Reproducible Research"
+author: "Rich Majerus"
+output:
+  pdf_document:
+    fig_caption: true
+---
+
+```{r, echo=FALSE}
+# define paths and files (this is all you need to change to run this code on your machine)
+folder <- '/Users/majerus/Desktop/2014 projects/blog/post1_logs/'
+file <- 'state_enrollment_reed.csv' 
+
+# load libraries 
+library(ggplot2)
+library(ggthemes)
+library(RColorBrewer)
+library(xtable)
+
+# load data 
+state <- read.csv(paste(folder, file, sep=''))
+
+# remove Washington, D.C. from data for mapping 
+state <- subset(state, state$State!='Washington, DC')
+
+# create variable that is log of 2013 data 
+state$l2013.t <- log(ifelse(state$X2013!=0, state$X2013, 1))
+
+# rename columns for mapping
+colnames(state) <- c('state', 'yr_2007', 'yr_2008', 'yr_2009', 'yr_2010', 'yr_2011', 'yr_2012', 'yr_2013', 'log_2013')
+state$state <- tolower(state$state)
+
+# read in mapping data 
+state_df <- map_data("state")
+
+# join reed data and mapping data at the state level 
+choropleth <- merge(state_df, state, by.x = "region", by.y = "state")
+
+# order data to properly display on map 
+choropleth <- choropleth[order(choropleth$order), ]
+
+# create map of 2013 enrollment 
+map13 <- ggplot(choropleth, aes(long, lat, group = group)) +
+         geom_polygon(aes(fill = yr_2013)) +   
+         coord_fixed() +       
+         theme_tufte() +
+         scale_fill_gradientn(colours=brewer.pal(9,"Greens"), name = " ") +
+         scale_x_continuous("Longitude") + 
+         scale_y_continuous("Latitude") 
+
+# create map of log of 2013 enrollment 
+map13l <- ggplot(choropleth, aes(long, lat, group = group)) +
+          geom_polygon(aes(fill = log_2013))+
+          coord_fixed() +   
+          theme_tufte() +
+          scale_fill_gradientn(colours=brewer.pal(9,"Greens"), name = " ") +
+          scale_x_continuous("Longitude") + 
+          scale_y_continuous("Latitude") 
+
+```
+
+You can write your entire paper (text, code, analysis, graphics, etc.) all in R Markdown.  As an example, the following maps show the the geographic distribution of Reed College's enrolling students. You can reproduce this example in RStudio with this [code](https://files.reed.edu/?path=%2Fafs%2Freed.edu%2Fuser%2Fm%2Fa%2Fmajerus%2FPublic%2Ftutorials%2Fcode%2Freproducible_research.Rmd) and this [data](https://files.reed.edu/?path=%2Fafs%2Freed.edu%2Fuser%2Fm%2Fa%2Fmajerus%2FPublic%2Ftutorials%2Fdata%2Fstate_enrollment_reed.csv).   Additionally, You can access a dynamic version of this analysis [online](http://blogs.reed.edu/ed-tech/2014/08/choropleth-maps/). Figure 1 shows the raw matriculant data from 2013 mapped by state. The darker a state's shading, the more matriculants from that state.  
+
+```{r, echo=FALSE, fig.cap="Domestic Geographic Distribution of 2013 Entering Class"}
+map13
+```
+
+However, we may be interested in learning more about the variation in matriculants across all states rather than identifying the states that account for the greatest number of matriculants. One way to approach this task is to map the log of matriculants. Log transforming a variable that contains exceptionally large values (i.e., a right skewed variable) pulls those large values closer to the mean and yields a more symmetrically distributed variable.  As for the map, log transforming the number of matriculants increases the variation in the color gradient across states and enables us to better visualize the distribution of Reed's matriculants across the entire country.
+
+```{r, echo=FALSE, fig.cap="Domestic Geographic Distribution of 2013 Entering Class (Log Transformed)"}
+map13l
+```
+

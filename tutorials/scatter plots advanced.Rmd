@@ -1,0 +1,61 @@
+---
+title: "Scatter Plots II"
+author: "Reed College, Instructional Technology Services"
+output: html_document
+---
+
+<br>
+<br>
+
+####Install and load ggplot
+```{r, warning=FALSE, message=FALSE}
+# install libraries 
+# This demo requires the 'ggplot' package 
+if( !is.element("ggplot2", installed.packages()[,1]) )
+  install.packages("ggplot2")
+
+# load libraries 
+library(ggplot2)
+```
+
+<br>
+<br>
+
+####Download and Load Data
+```{r}
+download.file("http://www.openintro.org/stat/data/evals.RData", destfile = "evals.RData")
+load("evals.RData")
+```
+
+<br>
+<br>
+
+####Create Scatter Plot Function
+```{r, message=FALSE}
+
+# this function will create a plot of every variable in your data frame against your dependent variable
+# the function takes two arguments: x = the name of your data frame and dv = the name of your dependent variable
+# if you want to save the scatter plots as .png files define the file path for graphs_folder below 
+# you will also need to remove the "#" from the two lines in the function that are commented out and place a "#" before print
+
+# save graphs in this folder
+graphs_folder <- 'filepath/graphs/'
+
+scatter <- function(x, dv, na.rm = TRUE, ...){
+  nm <- names(x)
+  for (i in seq_along(nm)) {
+  print(ggplot(x, aes_string(x = nm[i], y = dv)) + geom_point(color="dark blue") + theme_classic() +  stat_smooth(method = "lm", se = FALSE, size = 2, color="dark red"))}
+    # plots <- ggplot(x, aes_string(x = nm[i], y = dv)) + geom_point(color="blue") + theme_classic() + stat_smooth(method = "lm", se = FALSE, size = 2)
+    # ggsave(plots,filename=paste(graphs_folder, "scatter_",nm[i],".png",sep=""))}
+}
+
+```
+
+<br>
+<br>
+
+####Run Scatter Plot Function to Create Scatter Plots for an Entire Data Frame
+```{r, message=FALSE, warning=FALSE}
+scatter(x = evals, dv = "score") 
+
+```

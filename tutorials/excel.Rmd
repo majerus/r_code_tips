@@ -1,0 +1,76 @@
+---
+title: "Load data from multiple Excel worksheets"
+author: "Reed College, Instructional Technology Services"
+output: html_document
+---
+<BR>
+<BR>
+
+#### Introduction
+The following code allows you to read in data from each page of an Excel workbook into a list of data frames in R. Then the code will run a function to clean the data in each of those data frames. Lastly, the data frames are joined together into one data frame for analysis. 
+
+<BR>
+
+#### Install and Load XLConnect Package
+```{r, eval=FALSE}
+
+# install and load packages -----------------------------------------------
+pkg <- c("XLConnect")
+
+new.pkg <- pkg[!(pkg %in% installed.packages())]
+
+if (length(new.pkg)) {
+  install.packages(new.pkg)
+}
+
+library(XLConnect)
+
+```
+
+<BR>
+
+#### Read in Data from Excel Worksheets
+```{r, eval=FALSE}
+
+# load excel workbook
+excel <- loadWorkbook("filepath/ExcelData.xlsx") # change to match your path
+
+# get sheet names
+sheet_names <- getSheets(excel)
+names(sheet_names) <- sheet_names
+
+# put sheets into a list of data frames
+sheet_list <- lapply(sheet_names, function(.sheet){readWorksheet(object=excel, .sheet)})
+
+# limit sheet_list to sheets with at least 1 dimension 
+sheet_list2 <- sheet_list[sapply(sheet_list, function(x) dim(x)[1]) > 0]
+```
+
+<BR>
+
+#### Define and Run Function to Clean Data
+```{r, eval=FALSE}
+
+# code to read in each excel worksheet as individual dataframes
+# for (i in 2:length(sheet_list2)){assign(paste0("df", i), as.data.frame(sheet_list2[i]))}
+
+# define function to clean data in each data frame (updated based on your data)
+cleaner <- function(df){
+  # drop rows with missing values 
+  df <- df[rowSums(is.na(df)) == 0,] 
+  # remove serial comma from all variables 
+  df[,-1] <- as.numeric(gsub(",", "", as.matrix(df[,-1])))
+  # create numeric version of year variable for graphing 
+  df$Year <- as.numeric(substr(df$year, 1, 4))
+  # return cleaned df      
+  return(df)
+}
+
+# clean sheets and create one data frame
+# data <- do.call(rbind,lapply(seq_along(sheet_list2), function(x) cleaner(sheet_list2[[x]])))
+data <- do.call(rbind,lapply(names(sheet_list2), function(x) cleaner(sheet_list2[[x]])))
+
+
+```
+
+

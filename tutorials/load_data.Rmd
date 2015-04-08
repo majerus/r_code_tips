@@ -1,0 +1,48 @@
+---
+title: "Loading Data"
+author: "Reed College, Instructional Technology Services"
+output: html_document
+---
+
+R comes with a number of example data sets.  You can view these data sets in RStudio by typing 'data()'.
+```{r}
+summary(mtcars) # R has automatically loaded the mtcars data frame for us
+```
+      
+<BR>
+<BR>
+If you want to analyze other data in R there are several options for reading your data into R-Studio.  Among the most common are...
+<BR>
+<BR>
+ 
+**From a .csv file:**
+```{r, eval=FALSE}
+# use the read.csv commmand 
+cars <- read.csv('filepath/filename.csv', row.names=1) 
+# row.names tells R that the first row of our data contains variable names
+
+```
+<BR>
+<BR>
+**From a Stata data file:** 
+```{r, eval=FALSE}
+# use the read.dta command that is part of the foreign package 
+# if you have not already installed the foreign package you can type install.packages("foreign") to install it
+
+library(foreign)
+mydata <- read.dta("filepath/filename.dta")
+
+```
+<BR>
+<BR>
+**From an Excel data file:**
+```{r, eval=FALSE}
+# use the read.xlsx command that is part of the xlsx package 
+# if you have not already installed the xlsx package you can type install.packages("xlsx") to install it 
+# alternatively you can save your file in .csv format in Excel
+
+library(xlsx)
+mydata <- read.xlsx("filepath/filename.xlsx", 2) # the 2 tells R to read in the second page in the Excel workbook
+
+```
+

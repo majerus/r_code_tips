@@ -1,0 +1,84 @@
+---
+title: "Read Multiple .txt files and Write Summary Stats"
+output: html_document
+---
+
+<br/>
+
+#### Install, Update and Load Packages
+```{r, warning=FALSE}
+pkg <- c("stringr", "reshape2",  "dplyr", "ggplot2",  "magrittr")
+
+new.pkg <- pkg[!(pkg %in% installed.packages())]
+
+if (length(new.pkg)) {
+  install.packages(new.pkg)
+}
+
+library(stringr)
+library(reshape2)
+suppressPackageStartupMessages(library(dplyr))
+library(ggplot2)
+
+
+```
+<br/>
+
+
+#### Read in Data 
+```{r}
+# update this file path to point toward appropriate folder on your computer
+folder <- "/Users/majerus/Desktop/thesis_projects/linguistics/Yevgeniy/exp1/"      
+file_list <- list.files(path=folder, pattern="*.txt")                              
+
+# read in each .txt file in file_list and rbind them into a data frame called data 
+data <- 
+  do.call("rbind", 
+          lapply(file_list, 
+                 function(x) 
+                 read.table(paste(folder, x, sep=''), 
+                            header = TRUE, 
+                            stringsAsFactors = FALSE)))
+
+
+```
+<br/>
+
+#### Clean Data 
+```{r}
+clean.data <- function(df){
+  df <- cbind(df, colsplit(df$stimulus, ',', names =  c('s1','s2', 's3')))
+  df$answer <- ifelse(str_count(df$stimulus, 'A') == 2, 'A', 'B')
+  df$correct <- ifelse(df$response == df$answer, 1, 0)
+  df$reactionTime <- as.numeric(df$reactionTime)
+  return(df)
+}
+
+data <- clean.data(data)
+```
+<br/>
+
+#### Save Cleaned and Combined Data
+```{r}
+write.csv(data, paste(folder,'cleaned_data.csv', sep = ''), row.names = FALSE)
+```
+<br/>
+
+#### Create Data Frame of Summary Statistics 
+```{r}
+summary_stats <- 
+  data %>%
+  group_by(subject, correct, answer) %>%
+  summarise(count = n(),
+            mean_reactionTime = mean(reactionTime, na.rm = TRUE),
+            sd_reactionTime = sd(reactionTime, na.rm = TRUE),
+            min_reactionTime= min(reactionTime, na.rm = TRUE),
+            max_reactionTime = max(reactionTime, na.rm = TRUE))
+```
+<br/>
+
+#### Save Summary Statistics
+```{r}
+write.csv(summary_stats, paste(folder,'summary_stats.csv', sep = ''), row.names = FALSE)
+```
+

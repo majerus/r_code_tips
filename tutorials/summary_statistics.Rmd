@@ -1,0 +1,51 @@
+---
+title: "Summarizing your Data in RSudio"
+date: Reed College, Instructional Technology Services
+output: pdf_document
+---
+   
+**Load the mtcars data**   
+```{r}
+data(mtcars)
+```
+
+**List summary statistics of each variable** 
+```{r}
+summary(mtcars)
+```
+
+**List summary statistics for one variable** 
+```{r}
+summary(mtcars$mpg)
+```
+
+**List summary statistics for several variables**
+```{r}
+summary(mtcars[,c(1,2,4:6)])
+```
+
+**Using the describe command**
+```{r}
+# install.packages("psych")
+library(psych)
+```
+
+**Describe each variable**
+```{r}
+describe(mtcars)
+```
+
+**Describe one variable** 
+```{r}
+describe(mtcars$mpg)
+```
+
+**Describe several variables** 
+```{r}
+describe(mtcars[,c(1, 4:6)])
+```
+
+**Describe variables by a grouping variable**
+```{r}
+describeBy(mtcars$mpg, mtcars$cyl)
+```

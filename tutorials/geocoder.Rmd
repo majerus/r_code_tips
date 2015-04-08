@@ -1,0 +1,207 @@
+---
+title: "Geocoder & Coordinate Conversion"
+author: "Rich Majerus & Kristin Bott"
+date: "March 4, 2015"
+output: html_document
+---
+<br/>  
+
+### Intro 
+Some introductory text could go here....    
+
+<br/>  
+  
+
+A word about packages here...
+
+```{r, warning=FALSE}
+library(stringr)
+library(httr)
+library(rjson)
+suppressMessages(library(dplyr))
+#library(devtools)
+#if (!require("leaflet")) devtools::install_github("rstudio/leaflet")
+library(leaflet)
+```
+
+<br/>
+
+### Geocoding function...
+Some text about geocoding function here  
+
+<br/>
+
+```{r, echo=FALSE}
+
+# create geocode function with tryCatch for errors
+geo.dsk <- function(addr){ 
+  require(httr)
+  require(rjson)
+  
+  out <- tryCatch({
+  
+  url      <- "http://www.datasciencetoolkit.org/maps/api/geocode/json"
+  response <- GET(url,query=list(sensor="FALSE",address=addr))
+  json <- fromJSON(content(response,type="text"))
+  loc  <- json['results'][[1]][[1]]$geometry$location
+  return(c(address=addr,long=loc$lng, lat= loc$lat))
+  }, 
+    
+  error = function(cond) {
+            message(paste("Address not geocoded:", addr))
+            message("Here's the original error message:")
+            message(cond)
+            # Choose a return value in case of error
+            return(NA)
+        },  
+
+ warning = function(cond) {
+            message(paste("Address caused a warning:", addr))
+            message("Here's the original warning message:")
+            message(cond)
+            # Choose a return value in case of warning
+            return(NULL)
+        },
+
+ finally = {
+            message(paste("Processed Address:", addr))
+            message("One down...")
+        }
+    )    
+    return(out)
+}
+
+
+```
+
+<br/>
+
+Here is an example...
+
+<br/>
+
+```{r}
+
+geo.dsk("Reed College, Portland, OR")
+
+```
+
+
+<br/>
+
+This works on data frames too!!
+
+<br/>
+
+```{r}
+
+name   <- c('Carleton College', 'Pomona College', 'Reed College')
+street <- c('300 North College St', '333 N College Way', '3203 SE Woodstock Blvd') 
+city   <- c("Northfield", "Claremont", "Portland") 
+state  <- c('MN', 'CA', 'OR') 
+zip    <- c('55057', '91711', '97202')
+
+data   <- data.frame(name, street, city, state, zip)      
+
+
+# create location variable 
+
+data$location <- paste(str_trim(as.character(data$street)),
+                       str_trim(as.character(data$city)),
+                       str_trim(as.character(data$state)),
+                       str_trim(as.character(data$zip)), sep=' ')
+
+
+# geocode data and bind coordinates onto data
+
+result <- cbind(name= data$name,
+                as.data.frame(do.call(rbind,
+                              lapply(as.character(data$location), geo.dsk))))
+
+print(result)
+
+```
+
+
+<br/>
+
+### Coordinate Conversion function...
+
+If we want these data frames in another coordinate system we can simply convert them...
+
+<br/>
+
+```{r}
+
+# coordinate conversion function 
+degrees2meters = function(lon, lat) {
+  x = lon * 20037508.34 / 180;
+  y = log(tan((90 + lat) * pi / 360)) / (pi / 180);
+  y = y * 20037508.34 / 180;
+  z <- paste('POINT(', x,' ', y, ')', sep='')
+  return(z)
+}
+
+
+
+```
+
+<br/>
+Here is the first example converted....
+<br/>
+
+```{r}
+
+# coordinate conversion function 
+degrees2meters = function(lon, lat) {
+  x = lon * 20037508.34 / 180;
+  y = log(tan((90 + lat) * pi / 360)) / (pi / 180);
+  y = y * 20037508.34 / 180;
+  z <- paste('POINT(', x,' ', y, ')', sep='')
+  return(z)
+}
+
+
+degrees2meters(-122.629179, 45.479171)
+
+
+```
+
+<br/>
+This will work on data frames too! 
+<br/>
+
+```{r}
+
+result.converted <- cbind(name = result$name,
+                          as.data.frame(mapply(degrees2meters, as.numeric(result$long), as.numeric(result$lat))))
+
+colnames(result.converted) <- c('name', 'coords')
+
+
+print(result.converted)
+
+
+```
+<br/>
+
+### Last Step...make a map
+
+<br/>
+```{r}
+
+# create map
+
+leaflet(result) %>%
+  addTiles() %>%
+  setView(-93.65, 42.0285, zoom = 3) %>%
+  addCircles(result$long, result$lat) %>%
+  addPopups(result$long, result$lat, paste(result$name, '!', sep=''))
+
+
+```
+
+
+
+
+

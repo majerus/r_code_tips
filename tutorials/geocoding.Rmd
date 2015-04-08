@@ -1,0 +1,126 @@
+---
+title: "Geocoding"
+author: "Instructional Technology Services, Reed College"
+output: html_document
+---
+
+<br/>
+
+```{r, warning=FALSE}
+
+# load and install packages
+
+pkg <- c("httr", "rjson", "dplyr", "stringr", "devtools", "leaflet")
+new.pkg <- pkg[!(pkg %in% installed.packages())]
+if (length(new.pkg)) {
+  install.packages(new.pkg)
+}
+
+suppressMessages(library(httr))
+suppressMessages(library(rjson))
+suppressMessages(library(dplyr))
+suppressMessages(library(stringr))
+suppressMessages(library(devtools))
+
+suppressMessages(if (!require("leaflet")) devtools::install_github("rstudio/leaflet"))
+suppressMessages(library(leaflet))
+```
+
+<br/>
+
+```{r}
+
+# create sample data frame of addresses to geocode
+
+name   <- c('Carleton College', 'Pomona College', 'Reed College')
+street <- c('300 North College St', '333 N College Way', '3203 SE Woodstock Blvd') 
+city   <- c("Northfield", "Claremont", "Portland") 
+state  <- c('MN', 'CA', 'OR') 
+zip    <- c('55057', '91711', '97202')
+data   <- data.frame(name, street, city, state, zip)      
+
+
+# create location variable 
+
+data$location <- paste(str_trim(as.character(data$street)),
+                       str_trim(as.character(data$city)),
+                       str_trim(as.character(data$state)),
+                       str_trim(as.character(data$zip)), sep=' ')
+
+
+```
+
+<br/>
+
+```{r}
+
+# create geocode function with tryCatch 
+# geocoding api is from http://www.datasciencetoolkit.org/
+geo.dsk <- function(addr){
+  require(httr)
+  require(rjson)
+  
+  out <- tryCatch({
+    url <- "http://www.datasciencetoolkit.org/maps/api/geocode/json"
+    response <- GET(url,query=list(sensor="FALSE",address=addr))
+    json <- fromJSON(content(response,type="text"))
+    loc <- json['results'][[1]][[1]]$geometry$location
+    return(c(address=addr,long=loc$lng, lat= loc$lat))
+  },
+  
+  error = function(cond) {
+    message(paste("Address not geocoded:", addr))
+    message("Here's the original error message:")
+    message(cond)
+    # Choose a return value in case of error
+    return(NA)
+  },
+  
+  warning = function(cond) {
+    message(paste("Address caused a warning:", addr))
+    message("Here's the original warning message:")
+    message(cond)
+    # Choose a return value in case of warning
+    return(NULL)
+  },
+  
+  finally = {
+    message(paste("Processed Address:", addr))
+    message("One down...")
+  }
+  
+)
+  return(out)
+}
+
+```
+
+<br/>
+
+```{r}
+
+# geocode data and bind coordinates onto data
+
+result <- 
+          cbind(data,
+            as.data.frame(
+                  do.call(rbind,
+                          lapply(as.character(data$location), geo.dsk))))
+
+```
+
+<br/>
+
+```{r}
+
+# create map
+
+leaflet(result) %>%
+  addTiles() %>%
+  setView(-93.65, 42.0285, zoom = 3) %>%
+  addCircles(result$long, result$lat) %>%
+  addPopups(result$long, result$lat, paste(result$name, '!', sep=''))
+
+
+```
+
