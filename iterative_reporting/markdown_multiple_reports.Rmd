@@ -1,0 +1,136 @@
+---
+title: "Create Multiple Reports with RMarkdown"
+author: "Rich Majerus"
+output: html_document
+---
+
+<br/>
+
+## Introduction 
+Using two files (an r script and an rmarkdown script) we can create a series of reports.  The following example creates five reports using the mtcars data.  The rmarkdown file is called by the rscript one time for each unique car name in the mtcars data.  An example of the reports produced by these files can be found <a href="http://www.reed.edu/data-at-reed/resources/R/markdown_loop_example.html" target="_blank">here</a>.  <br/> 
+
+The rscript and rmarkdown script referenced in this tutorial can be found <a href="http://www.richmajerus.com/" target="_blank">here</a> along with the rmarkdown file that creates this tutorial.  
+
+<br/>
+
+## File 1: R Script 
+
+```{r, eval=FALSE}
+
+# References for automation 
+# http://www.r-bloggers.com/how-to-source-an-r-script-automatically-on-a-mac-using-automator-and-ical/
+# http://www.engadget.com/2013/03/18/triggering-applescripts-from-calendar-alerts-in-mountain-lion/
+
+# File 1: Should be an R-Script 
+    # contains a loop that iteratively calls an Rmarkdown file (i.e. File 2)
+
+# load packages
+library(knitr)
+library(markdown)
+library(rmarkdown)
+
+# use first 5 rows of mtcars as example data
+mtcars <- mtcars[1:5,]
+
+# create map to plot data on (this is outside the loop so it is only called once)
+map <-
+  get_map(location="United States",
+          source= 'google', maptype = 'terrain', color='bw', zoom=4) 
+
+# for each type of car in the data create a report
+  # these reports are saved in output_dir with the name specified by output_file
+for (car in unique(rownames(mtcars))){
+  rmarkdown::render('/Users/majerus/Desktop/R/auto_reporting/test/r_script.Rmd',  # file 2
+                   output_file =  paste("report_", car, '_', Sys.Date(), ".html", sep=''), 
+                   output_dir = '/Users/majerus/Desktop/R/auto_reporting/test/reports')
+
+# for pdf reports  
+#   rmarkdown::render(input = "/Users/majerus/Desktop/R/auto_reporting/test/r_script_pdf.Rmd", 
+#           output_format = "pdf_document",
+#           output_file = paste("test_report_", car, Sys.Date(), ".pdf", sep=''),
+#           output_dir = "/Users/majerus/Desktop/R/auto_reporting/test/reports")
+  
+}
+```
+
+<br/>
+
+## File 2: Rmarkdown
+
+```{r, eval=FALSE}
+# load packages 
+library(ggplot2)
+library(dplyr)
+library(ggmap)
+library(knitr)
+library(markdown)
+library(rmarkdown)
+library(xtable)
+```
+
+```{r, eval=FALSE}
+
+# limit data to car name that is currently specified by the loop  
+cars <- mtcars[rownames(mtcars)==car,]
+
+# create example data for each car 
+x <- sample(1:10, 1)
+cars <- do.call("rbind", replicate(x, cars, simplify = FALSE))
+
+# create hypotheical lat and lon for each row in cars 
+cars$lat <- sapply(rownames(cars), function(x) round(runif(1, 30, 46), 3))
+cars$lon <- sapply(rownames(cars), function(x) round(runif(1, -115, -80),3))
+
+```
+
+Today is `r Sys.Date()`.  
+
+<br><br>
+
+Today we sold cars to people in the following locations: 
+
+```{r, eval=FALSE}
+
+# print map with car loactions 
+ggmap(map) + 
+geom_point(aes(x = lon, y = lat), data = cars,
+ alpha = 1, color="darkred", size = 3)
+
+
+```
+
+<br><br>
+
+Here is a data table of the cars we sold. 
+
+<br><br>
+
+```{r xtable, eval=FALSE}
+
+# data table of cars sold 
+table <- xtable(cars[,c(1:2, 12:13)])
+print(table, type="latex", comment = FALSE)
+
+
+```
+
+<br><br>
+
+\newpage
+
+Here is a plot of mpg vs. weight for the sold cars: 
+<br><br>
+
+```{r, eval=FALSE}
+# plot of mpg vs. wt for cars sold
+
+ggplot(cars, aes(mpg, wt)) + 
+  geom_point(position = position_jitter(w = 0.1, h = 0.1)) 
+
+
+```
+
+
+
+
+

@@ -1,0 +1,64 @@
+---
+title: "Example Car Sales Report"
+author: "Rich Majerus"
+output: html_document
+---
+
+```{r, echo=FALSE}
+suppressWarnings(suppressPackageStartupMessages(library(ggplot2)))
+suppressWarnings(suppressPackageStartupMessages(library(dplyr)))
+suppressWarnings(suppressPackageStartupMessages(library(leaflet)))
+suppressWarnings(suppressPackageStartupMessages(library(DT)))
+suppressWarnings(suppressPackageStartupMessages(library(stringr)))
+library(knitr)
+library(markdown)
+library(rmarkdown)
+```
+
+```{r, echo=FALSE}
+cars <- mtcars[rownames(mtcars)==car,]
+
+# create daily data 
+x <- sample(1:10, 1)
+
+cars <- do.call("rbind", replicate(x, cars, simplify = FALSE))
+
+cars$lat <- sapply(rownames(cars), function(x) round(runif(1, 30, 46), 3))
+cars$lon <- sapply(rownames(cars), function(x) round(runif(1, -115, -80),3))
+
+```
+
+Today is `r Sys.Date()`.  
+
+Today we sold `r nrow(cars)` `r car`. 
+
+<br><br>
+
+Today we sold cars to people in the following locations: 
+```{r, echo=FALSE}
+# map of cars sold
+leaflet(cars) %>%
+  addTiles() %>%
+  setView(-93.65, 42.0285, zoom = 3) %>%
+  addCircles(cars$lon, cars$lat) 
+```
+
+<br><br>
+
+Here is a data table of the cars we sold. 
+```{r, echo=FALSE}
+# data table of cars sold 
+datatable(cars[,c(1:2, 12:13)])
+```
+
+<br><br>
+
+Here is a plot of mpg vs. weight for the sold cars: 
+```{r, echo=FALSE}
+
+# plot 
+ggplot(cars, aes(mpg, wt)) + geom_point(position = position_jitter(w = 0.1, h = 0.1)) + stat_smooth(method="lm", se=TRUE)
+
+```
+
+
