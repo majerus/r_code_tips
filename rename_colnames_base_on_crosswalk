@@ -1,0 +1,7 @@
+for (i in colnames(data)) { 
+  
+  colnames(data)[colnames(data) == i] <- as.character(col_cross[col_cross$original == i, 1])
+  
+  print(paste(i, "renamed to", col_cross[col_cross$original == i, 1]))
+  
+}
