@@ -1,0 +1,11 @@
+---
+title: "report"
+author: "Rich Majerus"
+date: "4/5/2018"
+output: word_document
+---
+
+
+Doc: `r i`
+Names: `r cat(tmp$name, sep = "\n")` 
+
