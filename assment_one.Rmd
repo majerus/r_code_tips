@@ -1,0 +1,107 @@
+---
+title: "Assessment I: Sports Analytics Jan Plan"
+name: ""
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Section 1: Loading Packages and Data
+
+##### Load the tidyverse library
+```{r}
+```
+
+##### Load the Olympic medals data into a data frame called olympics
+
+```{r, echo=FALSE}
+
+```
+
+Here's some info about variables in the data: 
+
+- ID - Unique number for each athlete
+- Name - Athlete's name
+- Sex - M or F
+- Age - Integer
+- Height - In centimeters
+- Weight - In kilograms
+- Team - Team name
+- NOC - National Olympic Committee 3-letter code
+- Games - Year and season
+- Year - Integer
+- Season - Summer or Winter
+- City - Host city
+- Sport - Sport
+- Event - Event
+- Medal - Gold, Silver, Bronze, or NA
+
+## Section 2: Describing the data
+
+##### How many rows are in the data? 
+
+##### How many columns are in the data?
+
+
+
+## Section 3: Country (NOC) Medal Counts
+
+##### Which country (NOC) has won the most medals?  
+```{r}
+
+```
+
+##### Which country has won the most medals in the winter games? 
+```{r}
+
+```
+
+## Section 4: Sport Medal Counts
+
+##### Which sport has awarded the fewest medals? 
+```{r}
+
+```
+
+##### In how many Olympic Games were medals awarded in the sport of Tug-Of-War?
+```{r}
+
+```
+
+
+## Section 5: BMI
+
+#####  Which gold medal winner has the highest BMI? (BMI = kg/m^2)
+```{r}
+
+```
+
+
+## Section 6: Graphing
+
+##### Create a box of the age of medal winners by sex
+```{r}
+
+```
+
+##### Who is that person who won a medal when they were 10? 
+```{r}
+
+```
+
+##### Facet the boxplot by Medal
+```{r}
+
+```
+
+
+## Section 7: Bonus 
+
+##### Which cities have hosted the games multiple times?
+```{r}
+
+```
+
+
